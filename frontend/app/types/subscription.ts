@@ -10,16 +10,13 @@ export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number]
 
 export type Subscription = {
   id: string
-  restaurantId: string
-
-  status: SubscriptionStatus
-
-  trialEndsAt?: string | null
-  currentPeriodStart?: string | null
-  currentPeriodEnd?: string | null
-
+  name: string
+  daysLeft: number
+  isBlocked: boolean
+  trialEndsAt: string | null
+  subscriptionEndsAt: string | null
+  subscriptionStatus: SubscriptionStatus
   createdAt: string
-  updatedAt: string
 }
 
 export type SubscriptionResponse = {

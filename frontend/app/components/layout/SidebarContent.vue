@@ -38,6 +38,10 @@ function isActive(href: string) {
 
   return props.activePath.startsWith(href)
 }
+
+onMounted(async () => {
+  await Promise.all([subscription.fetchSubscription()])
+})
 </script>
 
 <template>

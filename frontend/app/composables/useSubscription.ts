@@ -7,7 +7,7 @@ export function useSubscription() {
   const isLoadingSubscription = useState<boolean>('subscription:isLoading', () => false)
   const subscriptionError = useState<string>('subscription:error', () => '')
   const status = computed<SubscriptionStatus | null>(() => {
-    return subscription.value?.status || null
+    return subscription.value?.subscriptionStatus || null
   })
 
   const isTrial = computed(() => status.value === 'TRIAL')
