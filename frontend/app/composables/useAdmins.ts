@@ -4,13 +4,13 @@ export function useAdmins() {
   const api = useApi()
 
   async function getAdmins() {
-    return await api.request<AdminsResponse>('/admins', {
+    return await api.request<AdminsResponse>('/users/admins', {
       method: 'GET',
     })
   }
 
   async function createAdmin(payload: CreateAdminPayload) {
-    return await api.request<AdminResponse, CreateAdminPayload>('/admins', {
+    return await api.request<AdminResponse, CreateAdminPayload>('/auth/create-admin', {
       method: 'POST',
       body: payload,
     })

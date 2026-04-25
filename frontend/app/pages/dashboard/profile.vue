@@ -18,11 +18,11 @@ const roleLabels = {
 }
 
 const subscriptionLabels: Record<SubscriptionStatus, string> = {
-  TRIAL: 'Trial',
-  ACTIVE: 'Active',
-  PAST_DUE: 'Past due',
-  CANCELLED: 'Cancelled',
-  EXPIRED: 'Expired',
+  TRIAL: 'Пробный период',
+  ACTIVE: 'Подписка активна',
+  PAST_DUE: 'Не оплачена',
+  CANCELLED: 'Отменён',
+  EXPIRED: 'Срок подписки истек',
 }
 
 const subscriptionClasses: Record<SubscriptionStatus, string> = {
