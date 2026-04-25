@@ -23,6 +23,7 @@ export const registerOwnerService = async (dto: RegisterOwnerDto) => {
         create: {
           name: dto.ownerName,
           email: dto.email,
+          phone: dto.phone,
           passwordHash,
           role: 'OWNER',
         },

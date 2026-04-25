@@ -4,6 +4,7 @@ export const registerOwnerSchema = z
   .object({
     restaurantName: z.string().min(2),
     ownerName: z.string().min(2),
+    phone: z.string().min(5).optional(),
     email: z.string().email(),
     password: z.string().min(8),
   })
