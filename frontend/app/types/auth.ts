@@ -32,3 +32,18 @@ export type MeResponse = {
   message: string
   data: AuthUser
 }
+
+export type RegisterOwnerPayload = {
+  name: string
+  email: string
+  phone?: string
+  password: string
+  restaurantName: string
+}
+
+export type RegisterOwnerResponse = {
+  message: string
+  data: {
+    token: string
+  }
+}

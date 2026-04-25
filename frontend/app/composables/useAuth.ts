@@ -1,6 +1,12 @@
-// app/composables/useAuth.ts
-
-import type { AuthUser, LoginPayload, LoginResponse, MeResponse, UserRole } from '~/types/auth'
+import type {
+  AuthUser,
+  LoginPayload,
+  LoginResponse,
+  MeResponse,
+  UserRole,
+  RegisterOwnerPayload,
+  RegisterOwnerResponse,
+} from '~/types/auth'
 
 export function useAuth() {
   const api = useApi()
@@ -55,10 +61,27 @@ export function useAuth() {
     }
   }
 
+  async function registerOwner(payload: RegisterOwnerPayload) {
+    const response = await api.request<RegisterOwnerResponse, RegisterOwnerPayload>(
+      '/auth/register',
+      {
+        method: 'POST',
+        body: payload,
+        auth: false,
+      },
+    )
+
+    token.value = response.data.token
+
+    await fetchMe()
+
+    return response
+  }
+
   function logout() {
     token.value = null
     user.value = null
-    navigateTo('/login')
+    navigateTo('/auth/login')
   }
 
   function hasRole(roles: UserRole[]) {
@@ -80,5 +103,6 @@ export function useAuth() {
     fetchMe,
     logout,
     hasRole,
+    registerOwner,
   }
 }

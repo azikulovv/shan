@@ -79,6 +79,15 @@ async function handleLogin() {
         >
           {{ isLoading ? 'Входим...' : 'Войти' }}
         </button>
+
+        <div class="mt-4 text-center">
+          <p class="text-sm text-slate-500">
+            Нет аккаунта владельца?
+            <NuxtLink to="/auth/register" class="font-medium text-slate-950 hover:underline">
+              Создать аккаунт
+            </NuxtLink>
+          </p>
+        </div>
       </form>
     </section>
   </main>
