@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { prisma } from '../../prisma/prisma'
 import { signToken } from '../../shared/utils/jwt'
-import type { RegisterOwnerDto, LoginDto } from './auth.schema'
+import type { RegisterOwnerDto, LoginDto, CreateAdminDto } from './auth.schema'
 
 export const registerOwnerService = async (dto: RegisterOwnerDto) => {
   const existingUser = await prisma.user.findUnique({
@@ -82,4 +82,31 @@ export const loginService = async (dto: LoginDto) => {
     user: safeUser,
     restaurant,
   }
+}
+
+export const createAdminService = async (dto: CreateAdminDto, restaurantId: string) => {
+  const existingUser = await prisma.user.findUnique({
+    where: { email: dto.email },
+  })
+
+  if (existingUser) {
+    throw new Error('USER_ALREADY_EXISTS')
+  }
+
+  const passwordHash = await bcrypt.hash(dto.password, 10)
+
+  const admin = await prisma.user.create({
+    data: {
+      name: dto.name,
+      email: dto.email,
+      phone: dto.phone,
+      passwordHash,
+      role: 'ADMIN',
+      restaurantId,
+    },
+  })
+
+  const { passwordHash: _, ...safeAdmin } = admin
+
+  return safeAdmin
 }
