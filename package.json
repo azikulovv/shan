@@ -1,0 +1,13 @@
+{
+  "name": "shanyraq",
+  "private": true,
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate"
+  }
+}

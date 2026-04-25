@@ -1,5 +1,15 @@
 import tailwindcss from '@tailwindcss/vite'
 
+;['../.env', '.env'].forEach((envFile) => {
+  try {
+    process.loadEnvFile(envFile)
+  } catch (error) {
+    if ((error as { code?: string }).code !== 'ENOENT') {
+      throw error
+    }
+  }
+})
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -10,7 +20,10 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.SHANYRAQ_API_URL || 'http://localhost:3000/api',
+      apiBaseUrl:
+        process.env.FRONTEND_API_URL ||
+        process.env.SHANYRAQ_API_URL ||
+        'http://localhost:3000/api',
     },
   },
 })
