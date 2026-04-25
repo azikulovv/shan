@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+}
+
+enum BanquetStatus {
+  NEW
+  IN_PROGRESS
+  WAITING_PREPAYMENT
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+model Restaurant {
+  id      String  @id @default(uuid())
+  name    String
+  phone   String?
+  address String?
+
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  trialEndsAt        DateTime?
+  subscriptionEndsAt DateTime?
+  isBlocked          Boolean            @default(false)
+
+  users    User[]
+  halls    Hall[]
+  clients  Client[]
+  banquets Banquet[]
+  payments SubscriptionPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  banquetsCreated Banquet[] @relation("BanquetCreatedBy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Hall {
+  id          String  @id @default(uuid())
+  name        String
+  capacity    Int
+  description String?
+  isActive    Boolean @default(true)
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  banquets Banquet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id      String  @id @default(uuid())
+  name    String
+  phone   String
+  comment String?
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  banquets Banquet[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([restaurantId, phone])
+}
+
+model Banquet {
+  id         String  @id @default(uuid())
+  title      String?
+  eventType  String?
+  guestCount Int
+
+  date      DateTime
+  startTime String?
+  endTime   String?
+
+  status        BanquetStatus @default(NEW)
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  totalAmount      Int @default(0)
+  prepaymentAmount Int @default(0)
+  remainingAmount  Int @default(0)
+
+  comment String?
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  hallId String?
+  hall   Hall?   @relation(fields: [hallId], references: [id], onDelete: SetNull)
+
+  createdById String
+  createdBy   User   @relation("BanquetCreatedBy", fields: [createdById], references: [id])
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id      String  @id @default(uuid())
+  amount  Int
+  method  String?
+  comment String?
+
+  banquetId String
+  banquet   Banquet @relation(fields: [banquetId], references: [id], onDelete: Cascade)
+
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model SubscriptionPlan {
+  id       String  @id @default(uuid())
+  name     String
+  price    Int
+  currency String  @default("KZT")
+  period   String // MONTHLY / YEARLY
+  isActive Boolean @default(true)
+
+  payments SubscriptionPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubscriptionPayment {
+  id       String @id @default(uuid())
+  amount   Int
+  currency String @default("KZT")
+  status   String // PENDING / PAID / FAILED
+
+  provider   String?
+  externalId String?
+  paidAt     DateTime?
+
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  planId String?
+  plan   SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
