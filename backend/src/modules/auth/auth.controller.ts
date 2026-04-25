@@ -1,6 +1,12 @@
 import type { Request, Response } from 'express'
-import { registerOwnerService, loginService, createAdminService } from './auth.service'
+import {
+  registerOwnerService,
+  loginService,
+  createAdminService,
+  getMeService,
+} from './auth.service'
 import { AuthRequest } from '../../shared/middlewares/auth.middleware'
+import { prisma } from '../../prisma/prisma'
 
 export const registerOwner = async (req: Request, res: Response) => {
   try {
@@ -67,6 +73,33 @@ export const createAdmin = async (req: AuthRequest, res: Response) => {
 
     return res.status(500).json({
       message: 'Internal error',
+    })
+  }
+}
+
+export const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: 'Unauthorized',
+      })
+    }
+
+    const user = await getMeService(req.user.userId)
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    return res.status(200).json({
+      message: 'Current user fetched successfully',
+      data: user,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Failed to fetch current user',
     })
   }
 }

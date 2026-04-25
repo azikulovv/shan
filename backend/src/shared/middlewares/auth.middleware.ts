@@ -1,10 +1,12 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 
-type JwtPayload = {
+export type UserRole = 'OWNER' | 'ADMIN'
+
+export type JwtPayload = {
   userId: string
   restaurantId: string
-  role: 'OWNER' | 'ADMIN'
+  role: UserRole
 }
 
 export type AuthRequest = Request & {
@@ -35,7 +37,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   }
 }
 
-export const requireRole = (...roles: JwtPayload['role'][]) => {
+export const requireRole = (...roles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({

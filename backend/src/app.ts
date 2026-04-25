@@ -4,6 +4,7 @@ import { authRoutes } from './modules/auth/auth.routes'
 import { hallsRoutes } from './modules/halls/halls.routes'
 import { clientsRoutes } from './modules/clients/clients.routes'
 import { banquetsRoutes } from './modules/banquets/banquets.routes'
+import { subscriptionsRoutes } from './modules/subscriptions/subscriptions.routes'
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/halls', hallsRoutes)
 app.use('/api/clients', clientsRoutes)
 app.use('/api/banquets', banquetsRoutes)
+app.use('/api/subscription', subscriptionsRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' })

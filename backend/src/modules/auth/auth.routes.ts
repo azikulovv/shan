@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { registerOwner, login, createAdmin } from './auth.controller'
+import { registerOwner, login, createAdmin, getMe } from './auth.controller'
 import { validateBody } from '../../shared/middlewares/validate-body'
 import { registerOwnerSchema, loginSchema, createAdminSchema } from './auth.schema'
 import { authMiddleware, requireRole } from '../../shared/middlewares/auth.middleware'
@@ -15,3 +15,4 @@ authRoutes.post(
   validateBody(createAdminSchema),
   createAdmin,
 )
+authRoutes.get('/me', authMiddleware, getMe)

@@ -110,3 +110,33 @@ export const createAdminService = async (dto: CreateAdminDto, restaurantId: stri
 
   return safeAdmin
 }
+
+export const getMeService = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      restaurantId: true,
+      createdAt: true,
+      updatedAt: true,
+
+      restaurant: {
+        select: {
+          id: true,
+          name: true,
+          subscriptionStatus: true,
+          trialEndsAt: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  return user
+}
