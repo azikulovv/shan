@@ -8,7 +8,7 @@ definePageMeta({
 const auth = useAuth()
 
 const form = reactive<RegisterOwnerPayload>({
-  name: '',
+  ownerName: '',
   email: '',
   phone: '',
   password: '',
@@ -22,7 +22,7 @@ const errorMessage = ref('')
 async function handleRegister() {
   errorMessage.value = ''
 
-  if (!form.name.trim()) {
+  if (!form.ownerName.trim()) {
     errorMessage.value = 'Введите имя'
     return
   }
@@ -51,7 +51,7 @@ async function handleRegister() {
 
   try {
     await auth.registerOwner({
-      name: form.name.trim(),
+      ownerName: form.ownerName.trim(),
       email: form.email.trim(),
       phone: form.phone?.trim() || undefined,
       password: form.password,
@@ -171,7 +171,7 @@ async function handleRegister() {
               <label class="mb-1.5 block text-sm font-medium text-slate-700"> Имя владельца </label>
 
               <input
-                v-model="form.name"
+                v-model="form.ownerName"
                 type="text"
                 placeholder="Например: Алдияр Сапаров"
                 class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
@@ -222,7 +222,7 @@ async function handleRegister() {
                 <input
                   v-model="form.password"
                   type="password"
-                  placeholder="Минимум 6 символов"
+                  placeholder="Минимум 8 символов"
                   class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                 />
               </div>

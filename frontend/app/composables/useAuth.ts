@@ -63,7 +63,7 @@ export function useAuth() {
 
   async function registerOwner(payload: RegisterOwnerPayload) {
     const response = await api.request<RegisterOwnerResponse, RegisterOwnerPayload>(
-      '/auth/register',
+      '/auth/register-owner',
       {
         method: 'POST',
         body: payload,

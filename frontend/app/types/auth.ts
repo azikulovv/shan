@@ -34,7 +34,7 @@ export type MeResponse = {
 }
 
 export type RegisterOwnerPayload = {
-  name: string
+  ownerName: string
   email: string
   phone?: string
   password: string
