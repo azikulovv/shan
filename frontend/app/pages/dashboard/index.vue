@@ -51,7 +51,7 @@ const prepaymentPercent = computed(() => {
     return 0
   }
 
-  return Math.round((totalPrepayment.value / totalAmount.value) * 100)
+  return Math.min(Math.round((totalPrepayment.value / totalAmount.value) * 100), 100)
 })
 
 const upcomingBanquets = computed(() => {
@@ -196,7 +196,7 @@ const chartBars = computed(() => {
     },
   ].map((item) => ({
     ...item,
-    height: Math.max(Math.round((Number(item.value) / maxValue) * 100), 8),
+    height: item.value ? Math.max(Math.round((Number(item.value) / maxValue) * 100), 8) : 0,
   }))
 })
 
