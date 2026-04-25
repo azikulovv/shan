@@ -4,4 +4,4 @@ import { authMiddleware, requireRole } from '../../shared/middlewares/auth.middl
 
 export const subscriptionsRoutes = Router()
 
-subscriptionsRoutes.get('/me', authMiddleware, requireRole('OWNER', 'ADMIN'), getMySubscription)
+subscriptionsRoutes.get('/', authMiddleware, requireRole('OWNER', 'ADMIN'), getMySubscription)
