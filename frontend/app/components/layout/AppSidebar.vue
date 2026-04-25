@@ -93,46 +93,56 @@ const user = {
   restaurantName: auth.user.restaurant.name ?? 'Ресторан',
 }
 
-const navigationItems = [
-  {
-    label: 'Главная',
-    description: 'Обзор системы',
-    href: '/dashboard',
-    icon: 'dashboard',
-  },
-  {
-    label: 'Клиенты',
-    description: 'База гостей',
-    href: '/dashboard/clients',
-    icon: 'users',
-  },
-  {
-    label: 'Банкеты',
-    description: 'Мероприятия',
-    href: '/dashboard/banquets',
-    icon: 'calendar',
-  },
-  {
-    label: 'Залы',
-    description: 'Помещения',
-    href: '/dashboard/halls',
-    icon: 'building',
-  },
-  {
-    label: 'Финансы',
-    description: 'Оплаты',
-    href: '/dashboard/finance',
-    icon: 'wallet',
-    disbaled: true,
-  },
-  {
-    label: 'Настройки',
-    description: 'Workspace',
-    href: '/dashboard/settings',
-    icon: 'settings',
-    disbaled: true,
-  },
-]
+const navigationItems = computed(() => {
+  const items = [
+    {
+      label: 'Главная',
+      description: 'Обзор системы',
+      href: '/dashboard',
+      icon: 'dashboard',
+      roles: ['OWNER', 'ADMIN'],
+    },
+    {
+      label: 'Клиенты',
+      description: 'База гостей',
+      href: '/dashboard/clients',
+      icon: 'users',
+      roles: ['OWNER', 'ADMIN'],
+    },
+    {
+      label: 'Банкеты',
+      description: 'Мероприятия',
+      href: '/dashboard/banquets',
+      icon: 'calendar',
+      roles: ['OWNER', 'ADMIN'],
+    },
+    {
+      label: 'Залы',
+      description: 'Помещения',
+      href: '/dashboard/halls',
+      icon: 'building',
+      roles: ['OWNER', 'ADMIN'],
+    },
+    {
+      label: 'Финансы',
+      description: 'Оплаты',
+      href: '/dashboard/finance',
+      icon: 'wallet',
+      roles: ['OWNER', 'ADMIN'],
+    },
+    {
+      label: 'Админы',
+      description: 'Доступ сотрудников',
+      href: '/dashboard/admins',
+      icon: 'users',
+      roles: ['OWNER'],
+    },
+  ]
+
+  return items.filter((item) => {
+    return auth.user && item.roles.includes(auth.user.role)
+  })
+})
 
 function openMobileMenu() {
   isMobileMenuOpen.value = true

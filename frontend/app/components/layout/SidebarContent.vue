@@ -1,3 +1,45 @@
+<script setup lang="ts">
+import AppIcon from '~/components/ui/AppIcon.vue'
+import SubscriptionStatusCard from './SubscriptionStatusCard.vue'
+
+const props = defineProps<{
+  activePath: string
+  items: {
+    href: string
+    icon: string
+    label: string
+    description: string
+    disabled?: boolean
+  }[]
+  user: {
+    name: string
+    role: string
+    restaurantName: string
+  }
+}>()
+
+const emit = defineEmits(['close'])
+
+const subscription = useSubscription()
+
+const userInitials = computed(() => {
+  return props.user.name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+})
+
+function isActive(href: string) {
+  if (href === '/dashboard') {
+    return props.activePath === href
+  }
+
+  return props.activePath.startsWith(href)
+}
+</script>
+
 <template>
   <div class="flex h-full flex-col">
     <div class="mb-8 flex items-center justify-between">
@@ -10,7 +52,7 @@
 
         <div>
           <p class="text-sm font-semibold leading-none text-slate-950">Shanyraq</p>
-          <p class="mt-1 text-xs text-slate-500">{{ user.restourantName }}</p>
+          <p class="mt-1 text-xs text-slate-500">{{ user.restaurantName }}</p>
         </div>
       </RouterLink>
 
@@ -32,45 +74,67 @@
       :trial-days-left="subscription.trialDaysLeft.value"
     />
 
-    <nav class="flex-1 space-y-1.5 mt-5">
-      <RouterLink
-        v-for="item in items"
-        :key="item.href"
-        :to="item.href"
-        class="group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition focus:outline-none focus:ring-4 focus:ring-slate-200"
-        :class="
-          isActive(item.href)
-            ? 'bg-slate-950 text-white shadow-sm shadow-slate-950/20'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-        "
-        @click="emit('close')"
-      >
-        <span
-          class="flex size-10 shrink-0 items-center justify-center rounded-2xl transition"
+    <nav class="mt-5 flex-1 space-y-1.5">
+      <template v-for="item in items" :key="item.href">
+        <RouterLink
+          v-if="!item.disabled"
+          :to="item.href"
+          class="group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm transition focus:outline-none focus:ring-4 focus:ring-slate-200"
           :class="
             isActive(item.href)
-              ? 'bg-white/10 text-white'
-              : 'bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 group-hover:text-slate-950'
+              ? 'bg-slate-950 text-white shadow-sm shadow-slate-950/20'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
           "
+          @click="emit('close')"
         >
-          <AppIcon :name="item.icon" />
-        </span>
-
-        <span class="min-w-0 flex-1">
-          <span class="block truncate font-medium">
-            {{ item.label }}
-          </span>
-
           <span
-            class="mt-0.5 block truncate text-xs"
-            :class="isActive(item.href) ? 'text-white/60' : 'text-slate-400'"
+            class="flex size-10 shrink-0 items-center justify-center rounded-2xl transition"
+            :class="
+              isActive(item.href)
+                ? 'bg-white/10 text-white'
+                : 'bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 group-hover:text-slate-950'
+            "
           >
-            {{ item.description }}
+            <AppIcon :name="item.icon" />
           </span>
-        </span>
 
-        <span v-if="isActive(item.href)" class="size-1.5 rounded-full bg-white" />
-      </RouterLink>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-medium">
+              {{ item.label }}
+            </span>
+
+            <span
+              class="mt-0.5 block truncate text-xs"
+              :class="isActive(item.href) ? 'text-white/60' : 'text-slate-400'"
+            >
+              {{ item.description }}
+            </span>
+          </span>
+
+          <span v-if="isActive(item.href)" class="size-1.5 rounded-full bg-white" />
+        </RouterLink>
+
+        <div
+          v-else
+          class="flex cursor-not-allowed items-center gap-3 rounded-2xl px-3 py-3 text-sm text-slate-400 opacity-60"
+        >
+          <span
+            class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm ring-1 ring-slate-200"
+          >
+            <AppIcon :name="item.icon" />
+          </span>
+
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-medium">
+              {{ item.label }}
+            </span>
+
+            <span class="mt-0.5 block truncate text-xs text-slate-400">
+              {{ item.description }}
+            </span>
+          </span>
+        </div>
+      </template>
     </nav>
 
     <RouterLink
@@ -107,44 +171,3 @@
     </RouterLink>
   </div>
 </template>
-
-<script setup lang="ts">
-import AppIcon from '~/components/ui/AppIcon.vue'
-import SubscriptionStatusCard from './SubscriptionStatusCard.vue'
-
-const props = defineProps<{
-  items: {
-    href: string
-    icon: string
-    label: string
-    description: string
-  }[]
-  activePath: string
-  user: {
-    name: string
-    role: string
-    restourantName: string
-  }
-}>()
-
-const emit = defineEmits(['close'])
-
-const subscription = useSubscription()
-
-const userInitials = computed(() => {
-  return props.user.name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-})
-
-function isActive(href: string) {
-  if (href === '/dashboard') {
-    return props.activePath === href
-  }
-
-  return props.activePath.startsWith(href)
-}
-</script>
