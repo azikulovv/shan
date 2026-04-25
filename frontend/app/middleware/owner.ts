@@ -6,10 +6,10 @@ export default defineNuxtRouteMiddleware(async () => {
   }
 
   if (!auth.user) {
-    const user = await auth.fetchMe()
+    await auth.fetchMe()
+  }
 
-    if (!user) {
-      return navigateTo('/login')
-    }
+  if (auth.user?.role !== 'OWNER') {
+    return navigateTo('/dashboard')
   }
 })

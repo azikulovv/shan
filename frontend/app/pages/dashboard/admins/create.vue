@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { CreateHallPayload, Hall } from '~/types/hall'
+import type { AdminAccount, CreateAdminPayload } from '~/types/admin'
 
 definePageMeta({
   layout: 'dashboard',
-  middleware: 'auth',
+  middleware: ['auth', 'owner'],
 })
 
-const hallsApi = useHalls()
+const adminsApi = useAdmins()
 
-const halls = ref<Hall[]>([])
+const admins = ref<AdminAccount[]>([])
 const searchQuery = ref('')
 
 const isLoading = ref(false)
@@ -19,109 +19,91 @@ const errorMessage = ref('')
 const createErrorMessage = ref('')
 const isCreateModalOpen = ref(false)
 
-const form = reactive<CreateHallPayload>({
+const form = reactive<CreateAdminPayload>({
   name: '',
-  capacity: undefined,
-  description: '',
+  email: '',
+  password: '',
+  phone: '',
 })
 
-const totalHalls = computed(() => halls.value.length)
+const totalAdmins = computed(() => admins.value.length)
 
-const totalCapacity = computed(() => {
-  return halls.value.reduce((sum, hall) => {
-    return sum + Number(hall.capacity || 0)
-  }, 0)
+const adminsWithPhone = computed(() => {
+  return admins.value.filter((admin) => Boolean(admin.phone)).length
 })
 
-const hallsWithCapacity = computed(() => {
-  return halls.value.filter((hall) => Boolean(hall.capacity)).length
+const latestAdmin = computed(() => {
+  return [...admins.value].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })[0]
 })
 
-const hallsWithDescription = computed(() => {
-  return halls.value.filter((hall) => Boolean(hall.description)).length
-})
-
-const largestHall = computed(() => {
-  return [...halls.value]
-    .filter((hall) => Boolean(hall.capacity))
-    .sort((a, b) => Number(b.capacity || 0) - Number(a.capacity || 0))[0]
-})
-
-const averageCapacity = computed(() => {
-  if (!hallsWithCapacity.value) {
-    return 0
-  }
-
-  return Math.round(totalCapacity.value / hallsWithCapacity.value)
-})
-
-const filteredHalls = computed(() => {
+const filteredAdmins = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
-  return [...halls.value]
-    .filter((hall) => {
+  return [...admins.value]
+    .filter((admin) => {
       if (!query) {
         return true
       }
 
       return (
-        hall.name.toLowerCase().includes(query) ||
-        hall.description?.toLowerCase().includes(query) ||
-        String(hall.capacity || '').includes(query)
+        admin.name.toLowerCase().includes(query) ||
+        admin.email.toLowerCase().includes(query) ||
+        admin.phone?.toLowerCase().includes(query)
       )
     })
     .sort((a, b) => {
-      return a.name.localeCompare(b.name)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
 })
 
 const stats = computed(() => [
   {
-    label: 'Всего залов',
-    value: totalHalls.value,
-    description: 'Залы ресторана',
+    label: 'Всего админов',
+    value: totalAdmins.value,
+    description: 'Аккаунты сотрудников',
     iconClass: 'bg-indigo-50 text-indigo-600',
     icon: [
-      'M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16',
-      'M18 21V9h2a2 2 0 0 1 2 2v10',
-      'M8 7h4',
-      'M8 11h4',
-      'M8 15h4',
-      'M3 21h18',
-    ],
-  },
-  {
-    label: 'Общая вместимость',
-    value: totalCapacity.value,
-    description: 'Гостей во всех залах',
-    iconClass: 'bg-violet-50 text-violet-600',
-    icon: [
-      'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',
-      'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
-      'M23 21v-2a4 4 0 0 0-3-3.87',
+      'M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2',
+      'M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
+      'M22 21v-2a4 4 0 0 0-3-3.87',
       'M16 3.13a4 4 0 0 1 0 7.75',
     ],
   },
   {
-    label: 'Средняя вместимость',
-    value: averageCapacity.value,
-    description: 'Среднее количество гостей',
-    iconClass: 'bg-blue-50 text-blue-600',
-    icon: ['M3 3v18h18', 'm7 14 4-4 3 3 5-6'],
-  },
-  {
-    label: 'С описанием',
-    value: hallsWithDescription.value,
-    description: 'Залы с дополнительной информацией',
-    iconClass: 'bg-slate-100 text-slate-700',
+    label: 'С телефоном',
+    value: adminsWithPhone.value,
+    description: 'Админы с контактным номером',
+    iconClass: 'bg-violet-50 text-violet-600',
     icon: [
-      'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z',
-      'M14 2v6h6',
-      'M8 13h8',
-      'M8 17h6',
+      'M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.08 5.18 2 2 0 0 1 5.05 3h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.6a2 2 0 0 1-.45 2.11L9 10.63a16 16 0 0 0 4.37 4.37l1.2-1.2a2 2 0 0 1 2.11-.45c.83.28 1.7.48 2.6.6A2 2 0 0 1 22 16.92Z',
     ],
   },
+  {
+    label: 'Найдено',
+    value: filteredAdmins.value.length,
+    description: 'По текущему поиску',
+    iconClass: 'bg-blue-50 text-blue-600',
+    icon: ['m21 21-4.35-4.35', 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z'],
+  },
+  {
+    label: 'Роль',
+    value: 'ADMIN',
+    description: 'Создаваемый тип аккаунта',
+    iconClass: 'bg-slate-100 text-slate-700',
+    icon: ['M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z', 'M20 21a8 8 0 1 0-16 0'],
+  },
 ])
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+}
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -133,8 +115,9 @@ function formatDate(date: string) {
 
 function resetForm() {
   form.name = ''
-  form.capacity = undefined
-  form.description = ''
+  form.email = ''
+  form.password = ''
+  form.phone = ''
   createErrorMessage.value = ''
 }
 
@@ -148,53 +131,64 @@ function closeCreateModal() {
   resetForm()
 }
 
-async function fetchHalls() {
+async function fetchAdmins() {
   isLoading.value = true
   errorMessage.value = ''
 
   try {
-    const response = await hallsApi.getHalls()
-    halls.value = response.data
+    const response = await adminsApi.getAdmins()
+    admins.value = response.data
   } catch {
-    errorMessage.value = 'Не удалось загрузить залы'
+    errorMessage.value = 'Не удалось загрузить админов'
   } finally {
     isLoading.value = false
   }
 }
 
-async function handleCreateHall() {
+async function handleCreateAdmin() {
   createErrorMessage.value = ''
 
   if (!form.name.trim()) {
-    createErrorMessage.value = 'Введите название зала'
+    createErrorMessage.value = 'Введите имя админа'
     return
   }
 
-  if (form.capacity !== undefined && Number(form.capacity) < 1) {
-    createErrorMessage.value = 'Вместимость должна быть больше 0'
+  if (!form.email.trim()) {
+    createErrorMessage.value = 'Введите email админа'
+    return
+  }
+
+  if (!form.password.trim()) {
+    createErrorMessage.value = 'Введите пароль'
+    return
+  }
+
+  if (form.password.length < 6) {
+    createErrorMessage.value = 'Пароль должен быть минимум 6 символов'
     return
   }
 
   isCreating.value = true
 
   try {
-    const response = await hallsApi.createHall({
+    const response = await adminsApi.createAdmin({
       name: form.name.trim(),
-      capacity: form.capacity ? Number(form.capacity) : undefined,
-      description: form.description?.trim() || undefined,
+      email: form.email.trim(),
+      password: form.password,
+      phone: form.phone?.trim() || undefined,
     })
 
-    halls.value.unshift(response.data)
+    admins.value.unshift(response.data)
     closeCreateModal()
   } catch {
-    createErrorMessage.value = 'Не удалось создать зал'
+    createErrorMessage.value = 'Не удалось создать админа'
   } finally {
     isCreating.value = false
   }
 }
 
-async function handleDeleteHall(id: string) {
-  const confirmed = confirm('Удалить зал?')
+async function handleDeleteAdmin(id: string) {
+  const confirmed = confirm('Удалить аккаунт админа?')
 
   if (!confirmed) {
     return
@@ -204,11 +198,11 @@ async function handleDeleteHall(id: string) {
   errorMessage.value = ''
 
   try {
-    await hallsApi.deleteHall(id)
+    await adminsApi.deleteAdmin(id)
 
-    halls.value = halls.value.filter((hall) => hall.id !== id)
+    admins.value = admins.value.filter((admin) => admin.id !== id)
   } catch {
-    errorMessage.value = 'Не удалось удалить зал'
+    errorMessage.value = 'Не удалось удалить админа'
   } finally {
     isDeleting.value = null
   }
@@ -227,7 +221,7 @@ watch(isCreateModalOpen, (isOpen) => {
 })
 
 onMounted(() => {
-  fetchHalls()
+  fetchAdmins()
   window.addEventListener('keydown', handleKeydown)
 })
 
@@ -243,14 +237,14 @@ onBeforeUnmount(() => {
       <!-- Header -->
       <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p class="text-sm font-medium text-slate-500">Shanyraq Halls</p>
+          <p class="text-sm font-medium text-slate-500">Shanyraq Admins</p>
 
           <h1 class="mt-1 text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-            Залы
+            Админы
           </h1>
 
           <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Управляйте залами ресторана, вместимостью и описанием помещений для банкетов.
+            Создавайте аккаунты администраторов ресторана и управляйте доступом сотрудников.
           </p>
         </div>
 
@@ -270,7 +264,7 @@ onBeforeUnmount(() => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Поиск по названию, описанию, вместимости..."
+              placeholder="Поиск по имени, email, телефону..."
               class="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-700 shadow-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 sm:w-80"
             />
           </div>
@@ -290,7 +284,7 @@ onBeforeUnmount(() => {
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
             </svg>
 
-            Добавить зал
+            Создать админа
           </button>
         </div>
       </header>
@@ -306,7 +300,7 @@ onBeforeUnmount(() => {
         v-if="isLoading"
         class="rounded-[2rem] border border-slate-100 bg-white p-6 text-sm text-slate-500 shadow-sm"
       >
-        Загружаем залы...
+        Загружаем админов...
       </div>
 
       <template v-else>
@@ -323,33 +317,33 @@ onBeforeUnmount(() => {
                 <div
                   class="mb-4 inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-100"
                 >
-                  Пространства ресторана
+                  Только для владельца
                 </div>
 
                 <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                  {{ totalHalls }} залов в системе
+                  {{ totalAdmins }} админов ресторана
                 </h2>
 
                 <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                  Настраивайте залы, чтобы при создании банкета выбирать нужное помещение без
-                  ручного ввода ID.
+                  Владелец может создавать аккаунты админов, чтобы сотрудники могли работать с
+                  клиентами, банкетами, залами и финансами без доступа к управлению подпиской.
                 </p>
               </div>
 
               <div class="grid grid-cols-2 gap-3 sm:min-w-[320px]">
                 <div class="rounded-3xl bg-slate-950 p-4 text-white shadow-lg shadow-slate-950/10">
-                  <p class="text-xs text-white/60">Общая вместимость</p>
+                  <p class="text-xs text-white/60">Всего админов</p>
 
                   <p class="mt-2 text-2xl font-semibold">
-                    {{ totalCapacity }}
+                    {{ totalAdmins }}
                   </p>
                 </div>
 
                 <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-xs text-slate-500">Самый большой зал</p>
+                  <p class="text-xs text-slate-500">Последний админ</p>
 
                   <p class="mt-2 truncate text-lg font-semibold text-slate-950">
-                    {{ largestHall?.name || 'Пока нет' }}
+                    {{ latestAdmin?.name || 'Пока нет' }}
                   </p>
                 </div>
               </div>
@@ -365,12 +359,12 @@ onBeforeUnmount(() => {
             class="group rounded-3xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/60"
           >
             <div class="flex items-start justify-between gap-4">
-              <div>
+              <div class="min-w-0">
                 <p class="text-sm text-slate-500">
                   {{ stat.label }}
                 </p>
 
-                <p class="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+                <p class="mt-3 truncate text-2xl font-semibold tracking-tight text-slate-950">
                   {{ stat.value }}
                 </p>
               </div>
@@ -405,7 +399,7 @@ onBeforeUnmount(() => {
 
         <div class="grid gap-5 xl:grid-cols-[1fr_360px]">
           <div class="space-y-5">
-            <!-- Halls list -->
+            <!-- Admins list -->
             <article
               class="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm"
             >
@@ -413,21 +407,23 @@ onBeforeUnmount(() => {
                 class="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <h2 class="text-lg font-semibold tracking-tight text-slate-950">Список залов</h2>
+                  <h2 class="text-lg font-semibold tracking-tight text-slate-950">
+                    Список админов
+                  </h2>
 
-                  <p class="mt-1 text-sm text-slate-500">{{ filteredHalls.length }} найдено</p>
+                  <p class="mt-1 text-sm text-slate-500">{{ filteredAdmins.length }} найдено</p>
                 </div>
 
                 <button
                   type="button"
                   class="inline-flex h-10 items-center justify-center rounded-2xl bg-slate-50 px-4 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
-                  @click="fetchHalls"
+                  @click="fetchAdmins"
                 >
                   Обновить
                 </button>
               </div>
 
-              <div v-if="filteredHalls.length === 0" class="p-5">
+              <div v-if="filteredAdmins.length === 0" class="p-5">
                 <div class="rounded-3xl bg-slate-50 p-8 text-center">
                   <div
                     class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-sm"
@@ -442,21 +438,16 @@ onBeforeUnmount(() => {
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"
+                        d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"
                       />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M18 21V9h2a2 2 0 0 1 2 2v10"
-                      />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18" />
+                      <circle cx="9.5" cy="7" r="4" />
                     </svg>
                   </div>
 
-                  <h3 class="mt-4 text-sm font-semibold text-slate-950">Залы не найдены</h3>
+                  <h3 class="mt-4 text-sm font-semibold text-slate-950">Админы не найдены</h3>
 
                   <p class="mt-1 text-sm text-slate-500">
-                    Добавьте первый зал или измените поисковый запрос.
+                    Создайте первый аккаунт администратора или измените поиск.
                   </p>
 
                   <button
@@ -464,57 +455,32 @@ onBeforeUnmount(() => {
                     class="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white transition hover:bg-slate-800"
                     @click="openCreateModal"
                   >
-                    Добавить зал
+                    Создать админа
                   </button>
                 </div>
               </div>
 
               <div v-else class="grid gap-4 p-5 md:grid-cols-2">
                 <article
-                  v-for="hall in filteredHalls"
-                  :key="hall.id"
+                  v-for="admin in filteredAdmins"
+                  :key="admin.id"
                   class="group rounded-3xl border border-slate-100 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-slate-200/60"
                 >
                   <div class="flex items-start justify-between gap-4">
                     <div class="flex min-w-0 items-center gap-3">
                       <div
-                        class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-100"
+                        class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-100"
                       >
-                        <svg
-                          class="size-5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"
-                          />
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M18 21V9h2a2 2 0 0 1 2 2v10"
-                          />
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M8 7h4M8 11h4M8 15h4M3 21h18"
-                          />
-                        </svg>
+                        {{ getInitials(admin.name) }}
                       </div>
 
                       <div class="min-w-0">
-                        <h3 class="truncate text-base font-semibold text-slate-950">
-                          {{ hall.name }}
+                        <h3 class="truncate text-sm font-semibold text-slate-950">
+                          {{ admin.name }}
                         </h3>
 
                         <p class="mt-1 truncate text-xs text-slate-500">
-                          Вместимость:
-                          <span class="font-medium text-slate-700">
-                            {{ hall.capacity || 'не указана' }}
-                          </span>
+                          {{ admin.email }}
                         </p>
                       </div>
                     </div>
@@ -522,11 +488,11 @@ onBeforeUnmount(() => {
                     <button
                       type="button"
                       class="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                      :disabled="isDeleting === hall.id"
-                      @click="handleDeleteHall(hall.id)"
+                      :disabled="isDeleting === admin.id"
+                      @click="handleDeleteAdmin(admin.id)"
                     >
                       <svg
-                        v-if="isDeleting !== hall.id"
+                        v-if="isDeleting !== admin.id"
                         class="size-4"
                         viewBox="0 0 24 24"
                         fill="none"
@@ -548,27 +514,25 @@ onBeforeUnmount(() => {
 
                   <div class="mt-4 grid gap-3 sm:grid-cols-2">
                     <div class="rounded-2xl bg-white px-4 py-3">
-                      <p class="text-xs text-slate-400">Вместимость</p>
+                      <p class="text-xs text-slate-400">Роль</p>
 
-                      <p class="mt-1 text-sm font-semibold text-slate-700">
-                        {{ hall.capacity ? `${hall.capacity} гостей` : 'Не указана' }}
-                      </p>
+                      <p class="mt-1 text-sm font-semibold text-slate-700">ADMIN</p>
                     </div>
 
                     <div class="rounded-2xl bg-white px-4 py-3">
                       <p class="text-xs text-slate-400">Добавлен</p>
 
                       <p class="mt-1 text-sm font-semibold text-slate-700">
-                        {{ formatDate(hall.createdAt) }}
+                        {{ formatDate(admin.createdAt) }}
                       </p>
                     </div>
                   </div>
 
-                  <div v-if="hall.description" class="mt-3 rounded-2xl bg-white px-4 py-3">
-                    <p class="text-xs text-slate-400">Описание</p>
+                  <div v-if="admin.phone" class="mt-3 rounded-2xl bg-white px-4 py-3">
+                    <p class="text-xs text-slate-400">Телефон</p>
 
-                    <p class="mt-1 text-sm leading-6 text-slate-700">
-                      {{ hall.description }}
+                    <p class="mt-1 text-sm font-medium text-slate-700">
+                      {{ admin.phone }}
                     </p>
                   </div>
                 </article>
@@ -580,69 +544,33 @@ onBeforeUnmount(() => {
           <aside class="space-y-5">
             <article class="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
               <div class="mb-5">
-                <h2 class="text-lg font-semibold tracking-tight text-slate-950">Быстрый обзор</h2>
+                <h2 class="text-lg font-semibold tracking-tight text-slate-950">Права админа</h2>
 
-                <p class="mt-1 text-sm text-slate-500">Аналитика по залам</p>
+                <p class="mt-1 text-sm text-slate-500">Что может делать администратор.</p>
               </div>
 
               <div class="space-y-3">
                 <div class="rounded-3xl bg-slate-50 p-4">
-                  <div class="flex items-center justify-between gap-3">
-                    <p class="text-sm font-medium text-slate-700">Залов с вместимостью</p>
-
-                    <p class="text-sm font-semibold text-slate-950">
-                      {{ hallsWithCapacity }}
-                    </p>
-                  </div>
-                </div>
-
-                <div class="rounded-3xl bg-slate-50 p-4">
-                  <div class="flex items-center justify-between gap-3">
-                    <p class="text-sm font-medium text-slate-700">Средняя вместимость</p>
-
-                    <p class="text-sm font-semibold text-slate-950">
-                      {{ averageCapacity }}
-                    </p>
-                  </div>
-                </div>
-
-                <div class="rounded-3xl bg-slate-50 p-4">
-                  <div class="flex items-center justify-between gap-3">
-                    <p class="text-sm font-medium text-slate-700">Самый большой зал</p>
-
-                    <p class="truncate text-sm font-semibold text-slate-950">
-                      {{ largestHall?.name || 'Нет данных' }}
-                    </p>
-                  </div>
-
-                  <p v-if="largestHall?.capacity" class="mt-2 text-xs text-slate-500">
-                    До {{ largestHall.capacity }} гостей
-                  </p>
-                </div>
-              </div>
-            </article>
-
-            <article class="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
-              <div class="mb-5">
-                <h2 class="text-lg font-semibold tracking-tight text-slate-950">Рекомендации</h2>
-
-                <p class="mt-1 text-sm text-slate-500">Для удобной работы с банкетами</p>
-              </div>
-
-              <div class="space-y-3">
-                <div class="rounded-3xl bg-slate-50 p-4">
-                  <p class="text-sm font-semibold text-slate-800">Указывайте вместимость</p>
+                  <p class="text-sm font-semibold text-slate-800">Работать с клиентами</p>
 
                   <p class="mt-1 text-sm leading-6 text-slate-500">
-                    Это поможет быстрее выбирать подходящий зал при создании банкета.
+                    Добавлять, просматривать и вести базу гостей.
                   </p>
                 </div>
 
                 <div class="rounded-3xl bg-slate-50 p-4">
-                  <p class="text-sm font-semibold text-slate-800">Добавляйте описание</p>
+                  <p class="text-sm font-semibold text-slate-800">Управлять банкетами</p>
 
                   <p class="mt-1 text-sm leading-6 text-slate-500">
-                    Например: сцена, проектор, отдельный вход, детская зона.
+                    Создавать мероприятия, выбирать клиента, зал и оплату.
+                  </p>
+                </div>
+
+                <div class="rounded-3xl bg-slate-50 p-4">
+                  <p class="text-sm font-semibold text-slate-800">Без доступа к подписке</p>
+
+                  <p class="mt-1 text-sm leading-6 text-slate-500">
+                    Админ не должен управлять тарифом, владельцем и критичными настройками.
                   </p>
                 </div>
               </div>
@@ -653,11 +581,12 @@ onBeforeUnmount(() => {
             >
               <p class="text-sm font-medium text-white/70">Совет</p>
 
-              <h2 class="mt-2 text-xl font-semibold tracking-tight">Связывайте банкет с залом</h2>
+              <h2 class="mt-2 text-xl font-semibold tracking-tight">
+                Создавайте отдельный аккаунт для каждого сотрудника
+              </h2>
 
               <p class="mt-2 text-sm leading-6 text-white/70">
-                Тогда dashboard сможет показывать более точную аналитику по загрузке залов и
-                планированию мероприятий.
+                Так будет проще контролировать доступ и понимать, кто работает в системе.
               </p>
 
               <button
@@ -665,7 +594,7 @@ onBeforeUnmount(() => {
                 class="mt-5 h-11 rounded-2xl bg-white px-5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50"
                 @click="openCreateModal"
               >
-                Добавить зал
+                Создать админа
               </button>
             </article>
           </aside>
@@ -703,14 +632,15 @@ onBeforeUnmount(() => {
               >
                 <div class="mb-6 flex items-start justify-between gap-4">
                   <div>
-                    <p class="text-sm font-medium text-indigo-600">Новый зал</p>
+                    <p class="text-sm font-medium text-indigo-600">Новый админ</p>
 
                     <h2 class="mt-1 text-xl font-semibold tracking-tight text-slate-950">
-                      Добавить зал
+                      Создать аккаунт администратора
                     </h2>
 
                     <p class="mt-2 text-sm leading-6 text-slate-500">
-                      Создайте зал ресторана, чтобы использовать его при создании банкетов.
+                      Админ будет привязан к вашему ресторану и сможет войти в систему по email и
+                      паролю.
                     </p>
                   </div>
 
@@ -738,45 +668,57 @@ onBeforeUnmount(() => {
                   {{ createErrorMessage }}
                 </p>
 
-                <form class="space-y-4" @submit.prevent="handleCreateHall">
+                <form class="space-y-4" @submit.prevent="handleCreateAdmin">
                   <div>
-                    <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                      Название зала
-                    </label>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700"> Имя </label>
 
                     <input
                       v-model="form.name"
                       type="text"
-                      placeholder="Например: Большой зал"
+                      placeholder="Например: Админ ресторана"
                       class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
 
                   <div>
-                    <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                      Вместимость
-                    </label>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700"> Email </label>
 
                     <input
-                      v-model.number="form.capacity"
-                      type="number"
-                      min="1"
-                      placeholder="Например: 150"
+                      v-model="form.email"
+                      type="email"
+                      placeholder="admin@restaurant.kz"
                       class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                     />
                   </div>
 
                   <div>
-                    <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                      Описание
-                    </label>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700"> Телефон </label>
 
-                    <textarea
-                      v-model="form.description"
-                      rows="4"
-                      placeholder="Например: подходит для свадеб, юбилеев и крупных мероприятий"
-                      class="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                    <input
+                      v-model="form.phone"
+                      type="tel"
+                      placeholder="+7 777 000 00 00"
+                      class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
                     />
+                  </div>
+
+                  <div>
+                    <label class="mb-1.5 block text-sm font-medium text-slate-700"> Пароль </label>
+
+                    <input
+                      v-model="form.password"
+                      type="password"
+                      placeholder="Минимум 6 символов"
+                      class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                    />
+                  </div>
+
+                  <div class="rounded-3xl bg-slate-50 p-4">
+                    <p class="text-sm font-semibold text-slate-800">Роль: ADMIN</p>
+
+                    <p class="mt-1 text-sm leading-6 text-slate-500">
+                      Этот аккаунт будет создан как администратор вашего ресторана.
+                    </p>
                   </div>
 
                   <div class="grid gap-3 sm:grid-cols-2">
@@ -793,7 +735,7 @@ onBeforeUnmount(() => {
                       :disabled="isCreating"
                       class="h-12 rounded-2xl bg-slate-950 px-5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {{ isCreating ? 'Создаём...' : 'Создать зал' }}
+                      {{ isCreating ? 'Создаём...' : 'Создать админа' }}
                     </button>
                   </div>
                 </form>

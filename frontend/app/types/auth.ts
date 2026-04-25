@@ -19,4 +19,16 @@ export type AuthUser = {
   email?: string
   name?: string
   phone?: string
+  restaurant?: {
+    id: string
+    name: string
+    subscriptionStatus: string
+    trialEndsAt: string
+    createdAt: string
+  }
+}
+
+export type MeResponse = {
+  message: string
+  data: AuthUser
 }

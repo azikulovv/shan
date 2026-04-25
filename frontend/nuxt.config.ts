@@ -1,5 +1,4 @@
 import tailwindcss from '@tailwindcss/vite'
-
 ;['../.env', '.env'].forEach((envFile) => {
   try {
     process.loadEnvFile(envFile)
@@ -18,12 +17,13 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  typescript: {
+    strict: true,
+  },
   runtimeConfig: {
     public: {
       apiBaseUrl:
-        process.env.FRONTEND_API_URL ||
-        process.env.SHANYRAQ_API_URL ||
-        'http://localhost:3000/api',
+        process.env.FRONTEND_API_URL || process.env.SHANYRAQ_API_URL || 'http://localhost:3000/api',
     },
   },
 })
