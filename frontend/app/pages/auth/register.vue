@@ -71,7 +71,7 @@ async function handleRegister() {
   <main class="min-h-screen bg-slate-50 px-4 py-6">
     <div class="mx-auto flex min-h-[calc(100vh-48px)] w-full max-w-6xl items-center">
       <div
-        class="grid w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-xl shadow-slate-200/60 lg:grid-cols-[1fr_520px]"
+        class="grid w-full overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60 lg:grid-cols-[1fr_520px]"
       >
         <!-- Left visual -->
         <section class="relative hidden overflow-hidden bg-slate-950 p-8 text-white lg:block">
