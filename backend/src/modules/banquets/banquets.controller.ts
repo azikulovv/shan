@@ -3,9 +3,21 @@ import type { AuthRequest } from '../../shared/middlewares/auth.middleware'
 import {
   createBanquetService,
   deleteBanquetService,
+  getBanquetService,
   getBanquetsService,
   updateBanquetService,
 } from './banquets.service'
+
+export const getBanquet = async (req: AuthRequest, res: Response) => {
+  const banquetId = req.params.id
+
+  if (!banquetId) {
+    return res.status(400).json({ message: 'Banquet ID is required' })
+  }
+
+  const data = await getBanquetService(req.user!.restaurantId, String(banquetId))
+  return res.json({ message: 'Banquet fetched', data })
+}
 
 export const getBanquets = async (req: AuthRequest, res: Response) => {
   const data = await getBanquetsService(req.user!.restaurantId)

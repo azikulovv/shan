@@ -1,5 +1,11 @@
 import { Router } from 'express'
-import { createBanquet, deleteBanquet, getBanquets, updateBanquet } from './banquets.controller'
+import {
+  createBanquet,
+  deleteBanquet,
+  getBanquet,
+  getBanquets,
+  updateBanquet,
+} from './banquets.controller'
 import { validateBody } from '../../shared/middlewares/validate-body'
 import { authMiddleware, requireRole } from '../../shared/middlewares/auth.middleware'
 import { subscriptionMiddleware } from '../../shared/middlewares/subscription.middleware'
@@ -13,6 +19,14 @@ banquetsRoutes.get(
   subscriptionMiddleware,
   requireRole('OWNER', 'ADMIN'),
   getBanquets,
+)
+
+banquetsRoutes.get(
+  '/:id',
+  authMiddleware,
+  subscriptionMiddleware,
+  requireRole('OWNER', 'ADMIN'),
+  getBanquet,
 )
 
 banquetsRoutes.post(

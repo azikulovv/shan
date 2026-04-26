@@ -9,6 +9,17 @@ const calcRemaining = (total?: number, pre?: number) => {
   return Math.max(t - p, 0)
 }
 
+export const getBanquetService = async (restaurantId: string, banquetId: string) => {
+  return prisma.banquet.findFirst({
+    where: { id: banquetId, restaurantId },
+    include: {
+      client: true,
+      hall: true,
+    },
+    orderBy: { date: 'asc' },
+  })
+}
+
 export const getBanquetsService = async (restaurantId: string) => {
   return prisma.banquet.findMany({
     where: { restaurantId },
