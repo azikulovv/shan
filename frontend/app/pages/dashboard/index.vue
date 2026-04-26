@@ -273,7 +273,7 @@ onMounted(() => {
         </div>
       </header>
 
-      <UiErrorMessage :error-message="errorMessage" />
+      <UiErrorMessage v-if="errorMessage" :message="errorMessage" />
       <UiLoader v-if="isLoading" />
 
       <template v-else>

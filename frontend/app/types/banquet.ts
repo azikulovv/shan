@@ -45,3 +45,20 @@ export type BanquetResponse = {
   message: string
   data: Banquet
 }
+
+export type UpdateBanquetPayload = {
+  title?: string
+  eventType?: string
+  guestCount?: number
+
+  date?: string
+  startTime?: string
+
+  clientId?: string
+  hallId?: string
+
+  totalAmount?: number
+  prepaymentAmount?: number
+
+  comment?: string
+}

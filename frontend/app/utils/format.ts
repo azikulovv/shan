@@ -24,3 +24,10 @@ export const formatTime = (date: string, startTime?: string | null) => {
     minute: '2-digit',
   }).format(new Date(date))
 }
+
+export const formatShortDate = (date: string) => {
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: 'short',
+  }).format(new Date(date))
+}

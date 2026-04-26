@@ -3,6 +3,7 @@ import type {
   BanquetResponse,
   BanquetsResponse,
   CreateBanquetPayload,
+  UpdateBanquetPayload,
 } from '~/types/banquet'
 
 export function useBanquets() {
@@ -14,9 +15,22 @@ export function useBanquets() {
     })
   }
 
+  async function getBanquet(id: Banquet['id']) {
+    return await api.request<BanquetResponse>(`/banquets/${id}`, {
+      method: 'GET',
+    })
+  }
+
   async function createBanquet(payload: CreateBanquetPayload) {
     return await api.request<BanquetResponse, CreateBanquetPayload>('/banquets', {
       method: 'POST',
+      body: payload,
+    })
+  }
+
+  async function updateBanquet(id: Banquet['id'], payload: UpdateBanquetPayload) {
+    return await api.request<BanquetResponse, UpdateBanquetPayload>(`/banquets/${id}`, {
+      method: 'PATCH',
       body: payload,
     })
   }
@@ -28,8 +42,10 @@ export function useBanquets() {
   }
 
   return {
+    getBanquet,
     getBanquets,
     createBanquet,
+    updateBanquet,
     deleteBanquet,
   }
 }
