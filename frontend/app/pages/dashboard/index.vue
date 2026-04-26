@@ -88,11 +88,7 @@ const latestClients = computed(() => {
         return true
       }
 
-      return (
-        client.name.toLowerCase().includes(query) ||
-        client.phone.toLowerCase().includes(query) ||
-        client.email?.toLowerCase().includes(query)
-      )
+      return client.name.toLowerCase().includes(query) || client.phone.toLowerCase().includes(query)
     })
     .sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
