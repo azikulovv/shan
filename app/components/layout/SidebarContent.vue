@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppIcon from '~/components/ui/AppIcon.vue'
 import SubscriptionStatusCard from './SubscriptionStatusCard.vue'
+import type { UserRole } from '~/types/auth'
 
 const props = defineProps<{
   activePath: string
@@ -13,7 +14,7 @@ const props = defineProps<{
   }[]
   user: {
     name: string
-    role: string
+    role: UserRole
     restaurantName: string
   }
 }>()
@@ -158,7 +159,7 @@ onMounted(async () => {
             {{ user.name }}
           </p>
           <p class="mt-0.5 truncate text-xs text-slate-500">
-            {{ { OWNER: 'Владелец', ADMIN: 'Админ' }[user.role] }}
+            {{ getRole(user.role) }}
           </p>
         </div>
 

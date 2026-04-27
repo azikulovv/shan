@@ -12,11 +12,6 @@ const subscription = useSubscription()
 const isRefreshing = ref(false)
 const errorMessage = ref('')
 
-const roleLabels = {
-  OWNER: 'Владелец',
-  ADMIN: 'Администратор',
-}
-
 const subscriptionLabels: Record<SubscriptionStatus, string> = {
   TRIAL: 'Пробный период',
   ACTIVE: 'Подписка активна',
@@ -66,7 +61,7 @@ const profileItems = computed(() => [
   },
   {
     label: 'Роль',
-    value: user.value?.value?.role ? roleLabels[user.value.value.role] : 'Не указана',
+    value: user.value?.value?.role ? getRole(user.value.value.role) : 'Не указана',
   },
 ])
 
@@ -94,7 +89,7 @@ const restaurantItems = computed(() => [
 const accountStats = computed(() => [
   {
     label: 'Роль',
-    value: user.value.value?.role ? roleLabels[user.value.value.role] : '—',
+    value: user.value.value?.role ? getRole(user.value.value.role) : '—',
     description: 'Уровень доступа',
     iconClass: 'bg-indigo-50 text-indigo-600',
     icon: ['M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z', 'M20 21a8 8 0 1 0-16 0'],
@@ -235,7 +230,7 @@ onMounted(async () => {
                 <p class="text-xs text-white/60">Роль</p>
 
                 <p class="mt-2 truncate text-xl font-semibold">
-                  {{ user.value?.role ? roleLabels[user.value.role] : '—' }}
+                  {{ user.value?.role ? getRole(user.value.role) : '—' }}
                 </p>
               </div>
 
@@ -300,9 +295,7 @@ onMounted(async () => {
       <div class="grid gap-5 xl:grid-cols-[1fr_360px]">
         <div class="space-y-5">
           <!-- Profile info -->
-          <article
-            class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm"
-          >
+          <article class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm">
             <div class="border-b border-slate-100 p-5">
               <h2 class="text-lg font-semibold tracking-tight text-slate-950">Данные аккаунта</h2>
 
@@ -327,9 +320,7 @@ onMounted(async () => {
           </article>
 
           <!-- Restaurant info -->
-          <article
-            class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm"
-          >
+          <article class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm">
             <div class="border-b border-slate-100 p-5">
               <h2 class="text-lg font-semibold tracking-tight text-slate-950">
                 Ресторан и workspace

@@ -222,7 +222,7 @@ function getRemainingAmount(banquet: Banquet) {
                   </p>
 
                   <p class="mt-0.5 max-w-40 truncate text-xs text-slate-400">
-                    {{ { OWNER: 'Владелец', ADMIN: 'Админ' }[banquet.createdBy.role] }}
+                    {{ getRole(banquet.createdBy.role) }}
                   </p>
                 </div>
               </div>

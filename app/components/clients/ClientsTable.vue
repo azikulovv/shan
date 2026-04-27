@@ -130,6 +130,24 @@ function formatDate(date: string) {
             </td>
 
             <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xs font-semibold text-slate-700"
+                >
+                  {{ getClientInitials(client.createdBy.name) }}
+                </div>
+
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-slate-950">
+                    {{ client.createdBy.name }}
+                  </p>
+
+                  <p class="mt-0.5 text-xs text-slate-400">{{ getRole(client.createdBy.role) }}</p>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-5 py-4">
               <p class="text-sm font-medium text-slate-700">
                 {{ client.phone }}
               </p>

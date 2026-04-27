@@ -1,8 +1,11 @@
+import type { AdminAccount } from './admin'
+
 export type Client = {
   id: string
   name: string
   phone: string
   note?: string | null
+  createdBy: AdminAccount
   createdAt: string
   updatedAt: string
 }

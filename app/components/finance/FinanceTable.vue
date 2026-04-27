@@ -98,9 +98,7 @@ function getPaymentStatus(banquet: Banquet) {
 </script>
 
 <template>
-  <article
-    class="min-w-0 overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm"
-  >
+  <article class="min-w-0 overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm">
     <div
       class="flex flex-col gap-3 border-b border-slate-100 p-5 lg:flex-row lg:items-center lg:justify-between"
     >
@@ -218,7 +216,7 @@ function getPaymentStatus(banquet: Banquet) {
             </td>
 
             <td class="px-5 py-4">
-              <p class="text-sm font-medium text-slate-700">
+              <p class="text-sm font-medium text-slate-700 whitespace-nowrap">
                 {{ formatDate(banquet.date) }}
               </p>
 
@@ -248,7 +246,7 @@ function getPaymentStatus(banquet: Banquet) {
             <td class="px-5 py-4">
               <div class="w-28">
                 <div class="mb-1 flex items-center justify-between gap-2">
-                  <span class="text-xs text-slate-400"> progress </span>
+                  <span class="text-xs text-slate-400"> Оплачено </span>
 
                   <span class="text-xs font-semibold text-slate-700">
                     {{ getPaymentPercent(banquet) }}%
