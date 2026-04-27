@@ -3,6 +3,12 @@ definePageMeta({
   middleware: 'guest',
 })
 
+useSeoMeta({
+  title: 'Вход в систему',
+  description: 'Вход в личный кабинет Shanyraq для управления банкетами ресторана.',
+  robots: 'index, follow',
+})
+
 const auth = useAuth()
 
 const form = reactive({

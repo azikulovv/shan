@@ -34,14 +34,14 @@ const subscriptionClasses: Record<SubscriptionStatus, string> = {
 }
 
 const user = computed(() => auth.user)
-const restaurant = computed(() => user.value?.restaurant || null)
+const restaurant = computed(() => user.value.value?.restaurant || null)
 
 const subscriptionStatus = computed<SubscriptionStatus>(() => {
   return subscription.status.value || restaurant.value?.subscriptionStatus || 'TRIAL'
 })
 
 const userInitials = computed(() => {
-  const name = user.value?.name || 'User'
+  const name = user.value?.value?.name || 'User'
 
   return name
     .split(' ')
@@ -54,19 +54,19 @@ const userInitials = computed(() => {
 const profileItems = computed(() => [
   {
     label: 'Имя',
-    value: user.value?.name || 'Не указано',
+    value: user.value?.value?.name || 'Не указано',
   },
   {
     label: 'Email',
-    value: user.value?.email || 'Не указано',
+    value: user.value?.value?.email || 'Не указано',
   },
   {
     label: 'Телефон',
-    value: user.value?.phone || 'Не указан',
+    value: user.value?.value?.phone || 'Не указан',
   },
   {
     label: 'Роль',
-    value: user.value?.role ? roleLabels[user.value.role] : 'Не указана',
+    value: user.value?.value?.role ? roleLabels[user.value.value.role] : 'Не указана',
   },
 ])
 
@@ -77,7 +77,7 @@ const restaurantItems = computed(() => [
   },
   {
     label: 'Restaurant ID',
-    value: user.value?.restaurantId || 'Не указан',
+    value: user.value?.value?.restaurantId || 'Не указан',
   },
   {
     label: 'Статус подписки',
@@ -94,7 +94,7 @@ const restaurantItems = computed(() => [
 const accountStats = computed(() => [
   {
     label: 'Роль',
-    value: user.value?.role ? roleLabels[user.value.role] : '—',
+    value: user.value.value?.role ? roleLabels[user.value.value.role] : '—',
     description: 'Уровень доступа',
     iconClass: 'bg-indigo-50 text-indigo-600',
     icon: ['M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z', 'M20 21a8 8 0 1 0-16 0'],
@@ -198,7 +198,7 @@ onMounted(async () => {
       </p>
 
       <!-- Hero profile card -->
-      <article class="overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-sm">
+      <article class="overflow-hidden rounded-4xl border border-indigo-100 bg-white shadow-sm">
         <div class="relative p-5 sm:p-6 lg:p-7">
           <div class="absolute right-0 top-0 h-40 w-40 rounded-full bg-indigo-100 blur-3xl" />
           <div class="absolute bottom-0 right-20 h-32 w-32 rounded-full bg-violet-100 blur-3xl" />
@@ -220,12 +220,12 @@ onMounted(async () => {
                 </div>
 
                 <h2 class="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                  {{ user?.name || 'Пользователь' }}
+                  {{ user.value?.name || 'Пользователь' }}
                 </h2>
 
                 <p class="mt-2 text-sm leading-6 text-slate-500">
-                  {{ user?.email || 'Email не указан' }}
-                  <span v-if="user?.phone"> · {{ user.phone }} </span>
+                  {{ user.value?.email || 'Email не указан' }}
+                  <span v-if="user.value?.phone"> · {{ user.value.phone }} </span>
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ onMounted(async () => {
                 <p class="text-xs text-white/60">Роль</p>
 
                 <p class="mt-2 truncate text-xl font-semibold">
-                  {{ user?.role ? roleLabels[user.role] : '—' }}
+                  {{ user.value?.role ? roleLabels[user.value.role] : '—' }}
                 </p>
               </div>
 
@@ -301,7 +301,7 @@ onMounted(async () => {
         <div class="space-y-5">
           <!-- Profile info -->
           <article
-            class="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm"
+            class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm"
           >
             <div class="border-b border-slate-100 p-5">
               <h2 class="text-lg font-semibold tracking-tight text-slate-950">Данные аккаунта</h2>
@@ -319,7 +319,7 @@ onMounted(async () => {
                   {{ item.label }}
                 </p>
 
-                <p class="mt-2 break-words text-sm font-semibold text-slate-800">
+                <p class="mt-2 wrap-break-word text-sm font-semibold text-slate-800">
                   {{ item.value }}
                 </p>
               </div>
@@ -328,7 +328,7 @@ onMounted(async () => {
 
           <!-- Restaurant info -->
           <article
-            class="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm"
+            class="overflow-hidden rounded-4xl border border-slate-100 bg-white shadow-sm"
           >
             <div class="border-b border-slate-100 p-5">
               <h2 class="text-lg font-semibold tracking-tight text-slate-950">
@@ -350,7 +350,7 @@ onMounted(async () => {
                   {{ item.label }}
                 </p>
 
-                <p class="mt-2 break-words text-sm font-semibold text-slate-800">
+                <p class="mt-2 wrap-break-word text-sm font-semibold text-slate-800">
                   {{ item.value }}
                 </p>
               </div>
@@ -361,7 +361,7 @@ onMounted(async () => {
         <!-- Right panel -->
         <aside class="space-y-5">
           <!-- Subscription -->
-          <article class="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <article class="rounded-4xl border border-slate-100 bg-white p-5 shadow-sm">
             <div class="mb-5 flex items-center justify-between gap-4">
               <div>
                 <h2 class="text-lg font-semibold tracking-tight text-slate-950">Подписка</h2>
@@ -412,7 +412,7 @@ onMounted(async () => {
           </article>
 
           <!-- Access -->
-          <article class="rounded-[2rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <article class="rounded-4xl border border-slate-100 bg-white p-5 shadow-sm">
             <div class="mb-5">
               <h2 class="text-lg font-semibold tracking-tight text-slate-950">Доступ</h2>
 
@@ -422,11 +422,11 @@ onMounted(async () => {
             <div class="space-y-3">
               <div class="rounded-3xl bg-slate-50 p-4">
                 <p class="text-sm font-semibold text-slate-800">
-                  {{ user?.role === 'OWNER' ? 'Полный доступ' : 'Рабочий доступ' }}
+                  {{ user.value?.role === 'OWNER' ? 'Полный доступ' : 'Рабочий доступ' }}
                 </p>
 
                 <p class="mt-1 text-sm leading-6 text-slate-500">
-                  <template v-if="user?.role === 'OWNER'">
+                  <template v-if="user.value?.role === 'OWNER'">
                     Вы можете управлять рестораном, админами, подпиской и всеми рабочими модулями.
                   </template>
 

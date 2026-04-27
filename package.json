@@ -18,5 +18,9 @@
   },
   "volta": {
     "node": "v22.22.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.3"
   }
 }

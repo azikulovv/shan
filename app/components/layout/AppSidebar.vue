@@ -12,7 +12,7 @@
 
         <div>
           <p class="text-sm font-semibold leading-none text-slate-950">Shanyraq</p>
-          <p class="mt-1 text-xs text-slate-500">{{ auth.user.restaurant.name }}</p>
+          <p class="mt-1 text-xs text-slate-500">{{ user.restaurantName }}</p>
         </div>
       </RouterLink>
 
@@ -88,9 +88,9 @@ const isMobileMenuOpen = ref(false)
 const activePath = computed(() => route.path)
 
 const user = {
-  name: auth.user.name ?? 'Гость',
-  role: auth.user.role ?? 'Пользователь',
-  restaurantName: auth.user.restaurant.name ?? 'Ресторан',
+  name: auth.user.value?.name ?? 'Гость',
+  role: auth.user.value?.role ?? 'Пользователь',
+  restaurantName: auth.user.value?.restaurant.name ?? 'Ресторан',
 }
 
 const navigationItems = computed(() => {
@@ -140,7 +140,7 @@ const navigationItems = computed(() => {
   ]
 
   return items.filter((item) => {
-    return auth.user && item.roles.includes(auth.user.role)
+    return auth.user.value && item.roles.includes(auth.user.value.role)
   })
 })
 

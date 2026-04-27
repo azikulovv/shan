@@ -94,7 +94,7 @@ export function useAuth() {
 
   return {
     token,
-    user: user.value,
+    user,
     isLoadingUser,
     isAuthenticated,
     isOwner,

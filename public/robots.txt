@@ -1,2 +1,12 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /settings
+Disallow: /clients
+Disallow: /banquets
+
+Sitemap: https://app.shan.kz/sitemap.xml
