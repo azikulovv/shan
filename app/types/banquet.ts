@@ -1,5 +1,6 @@
 import type { Client } from '~/types/client'
 import type { Hall } from './hall'
+import type { AdminAccount } from './admin'
 
 export type Banquet = {
   id: string
@@ -17,6 +18,7 @@ export type Banquet = {
   createdAt: string
   updatedAt: string
   hall: Hall
+  createdBy: Omit<AdminAccount, 'restaurantId'>
 }
 
 export type CreateBanquetPayload = {

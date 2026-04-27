@@ -148,6 +148,7 @@ function getRemainingAmount(banquet: Banquet) {
           >
             <th class="px-5 py-4 font-semibold">Банкет</th>
             <th class="px-5 py-4 font-semibold">Клиент</th>
+            <th class="px-5 py-4 font-semibold">Админ</th>
             <th class="px-5 py-4 font-semibold">Зал</th>
             <th class="px-5 py-4 font-semibold">Дата</th>
             <th class="px-5 py-4 font-semibold">Гостей</th>
@@ -202,6 +203,26 @@ function getRemainingAmount(banquet: Banquet) {
                     class="mt-0.5 max-w-40 truncate text-xs text-slate-400"
                   >
                     {{ banquet.client.phone }}
+                  </p>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xs font-semibold text-slate-700"
+                >
+                  {{ getClientInitials(banquet.createdBy.name) }}
+                </div>
+
+                <div class="min-w-0">
+                  <p class="max-w-40 truncate text-sm font-medium text-slate-800">
+                    {{ banquet.createdBy.name }}
+                  </p>
+
+                  <p class="mt-0.5 max-w-40 truncate text-xs text-slate-400">
+                    {{ { OWNER: 'Владелец', ADMIN: 'Админ' }[banquet.createdBy.role] }}
                   </p>
                 </div>
               </div>
