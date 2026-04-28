@@ -35,6 +35,7 @@ export function useApi() {
     return await $fetch<TResponse>(url, {
       method: options.method || 'GET',
       body: options.body,
+      timeout: 10000,
       headers: {
         ...(options.auth !== false && token.value
           ? { Authorization: `Bearer ${token.value}` }
