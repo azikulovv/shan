@@ -11,7 +11,7 @@ import type {
 export function useAuth() {
   const api = useApi()
 
-  const token = useCookie<string | null>('token', {
+  const token = useCookie<string | null>('access_token', {
     maxAge: 60 * 60 * 24 * 7,
     sameSite: 'lax',
   })

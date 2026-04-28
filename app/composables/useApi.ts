@@ -24,7 +24,7 @@ function buildUrl(baseUrl: string, path: string, query?: Record<string, QueryVal
 
 export function useApi() {
   const config = useRuntimeConfig()
-  const token = useCookie<string | null>('token')
+  const token = useCookie<string | null>('access_token')
 
   async function request<TResponse, TBody = unknown>(
     path: string,
