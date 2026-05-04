@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import BaseButton from '~/components/ui/BaseButton.vue'
+import { loginSchema } from '~/schemas/auth/login.schema'
+
 definePageMeta({
   middleware: 'guest',
 })
@@ -17,10 +20,12 @@ const form = reactive({
 })
 
 const isLoading = ref(false)
-const errorMessage = ref('')
+
+const { errors, validate, setFormError } = useValidation(loginSchema)
 
 async function handleLogin() {
-  errorMessage.value = ''
+  const result = validate(form)
+  if (!result.success) return
   isLoading.value = true
 
   try {
@@ -31,7 +36,7 @@ async function handleLogin() {
 
     await navigateTo('/dashboard')
   } catch (error) {
-    errorMessage.value = 'Неверный email или пароль'
+    setFormError('Не удалось войти. Проверьте данные и попробуйте снова.')
   } finally {
     isLoading.value = false
   }
@@ -52,39 +57,27 @@ async function handleLogin() {
       </div>
 
       <form class="space-y-4" @submit.prevent="handleLogin">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700"> Email </label>
-
-          <input
-            v-model="form.email"
-            type="email"
-            placeholder="admin@shanyraq.kz"
-            class="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm outline-none transition focus:border-gray-900"
-          />
-        </div>
-
-        <div>
-          <label class="mb-1.5 block text-sm font-medium text-gray-700"> Пароль </label>
-
-          <input
-            v-model="form.password"
-            type="password"
-            placeholder="Введите пароль"
-            class="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm outline-none transition focus:border-gray-900"
-          />
-        </div>
-
-        <p v-if="errorMessage" class="text-sm text-red-500">
-          {{ errorMessage }}
-        </p>
-
-        <button
-          type="submit"
+        <UiFormInput
+          v-model="form.email"
+          :error="errors.email"
           :disabled="isLoading"
-          class="h-12 w-full rounded-2xl bg-gray-950 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {{ isLoading ? 'Входим...' : 'Войти' }}
-        </button>
+          type="email"
+          label="Email"
+          placeholder="admin@shan.kz"
+        />
+
+        <UiFormInput
+          v-model="form.password"
+          :error="errors.password"
+          :disabled="isLoading"
+          type="password"
+          label="Пароль"
+          placeholder="Введите пароль"
+        />
+
+        <BaseButton type="submit" :disabled="isLoading" :full-width="true" :loading="isLoading">
+          Войти
+        </BaseButton>
 
         <div class="mt-4 text-center">
           <p class="text-sm text-slate-500">

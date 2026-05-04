@@ -1,66 +1,35 @@
 <script setup lang="ts">
-import type { RegisterOwnerPayload } from '~/types/auth'
+import BaseButton from '~/components/ui/BaseButton.vue'
+import { registerOwnerSchema, type RegisterOwnerForm } from '~/schemas/auth/register.schema'
 
 definePageMeta({
   middleware: 'guest',
 })
 
 const auth = useAuth()
+const { errors, validate, setFormError } = useValidation(registerOwnerSchema)
 
-const form = reactive<RegisterOwnerPayload>({
+const form = reactive<RegisterOwnerForm>({
   ownerName: '',
   email: '',
   phone: '',
   password: '',
+  confirmPassword: '',
   restaurantName: '',
 })
 
-const confirmPassword = ref('')
 const isLoading = ref(false)
-const errorMessage = ref('')
 
-async function handleRegister() {
-  errorMessage.value = ''
-
-  if (!form.ownerName.trim()) {
-    errorMessage.value = 'Введите имя'
-    return
-  }
-
-  if (!form.email.trim()) {
-    errorMessage.value = 'Введите email'
-    return
-  }
-
-  if (!form.restaurantName.trim()) {
-    errorMessage.value = 'Введите название ресторана'
-    return
-  }
-
-  if (form.password.length < 6) {
-    errorMessage.value = 'Пароль должен быть минимум 6 символов'
-    return
-  }
-
-  if (form.password !== confirmPassword.value) {
-    errorMessage.value = 'Пароли не совпадают'
-    return
-  }
-
+async function handleRegister(formData: RegisterOwnerForm) {
+  if (!validate(form).success) return
   isLoading.value = true
 
   try {
-    await auth.registerOwner({
-      ownerName: form.ownerName.trim(),
-      email: form.email.trim(),
-      phone: form.phone?.trim() || undefined,
-      password: form.password,
-      restaurantName: form.restaurantName.trim(),
-    })
-
+    const { confirmPassword, ...payload } = formData
+    await auth.registerOwner(payload)
     await navigateTo('/dashboard')
   } catch {
-    errorMessage.value = 'Не удалось создать аккаунт. Возможно, email уже используется'
+    setFormError('Не удалось создать аккаунт. Возможно, email уже используется')
   } finally {
     isLoading.value = false
   }
@@ -159,86 +128,63 @@ async function handleRegister() {
             </p>
           </div>
 
-          <p
-            v-if="errorMessage"
-            class="mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600"
-          >
-            {{ errorMessage }}
-          </p>
+          <form class="space-y-4" @submit.prevent="handleRegister(form)">
+            <UiFormInput
+              v-model="form.ownerName"
+              :error="errors.ownerName"
+              :disabled="isLoading"
+              type="text"
+              label="Имя владельца"
+              placeholder="Например: Алдияр Сапаров"
+            />
 
-          <form class="space-y-4" @submit.prevent="handleRegister">
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700"> Имя владельца </label>
+            <UiFormInput
+              v-model="form.restaurantName"
+              :error="errors.restaurantName"
+              :disabled="isLoading"
+              type="text"
+              label="Название ресторана"
+              placeholder="Например: Shanyraq"
+            />
 
-              <input
-                v-model="form.ownerName"
-                type="text"
-                placeholder="Например: Алдияр Сапаров"
-                class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+            <div class="grid gap-4 sm:grid-cols-2">
+              <UiFormInput
+                v-model="form.email"
+                :error="errors.email"
+                :disabled="isLoading"
+                type="email"
+                label="Email"
+                placeholder="owner@shan.kz"
               />
-            </div>
 
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                Название ресторана
-              </label>
-
-              <input
-                v-model="form.restaurantName"
-                type="text"
-                placeholder="Например: Shanyraq"
-                class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+              <UiFormInput
+                v-model="form.phone"
+                :error="errors.phone"
+                :disabled="isLoading"
+                type="tel"
+                label="Телефон"
+                placeholder="+7 777 000 00 00"
               />
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700"> Email </label>
+              <UiFormInput
+                v-model="form.password"
+                :error="errors.password"
+                :disabled="isLoading"
+                type="password"
+                label="Пароль"
+                placeholder="Минимум 8 символов"
+              />
 
-                <input
-                  v-model="form.email"
-                  type="email"
-                  placeholder="example@mail.com"
-                  class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                />
-              </div>
-
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700"> Телефон </label>
-
-                <input
-                  v-model="form.phone"
-                  type="tel"
-                  placeholder="+7 777 000 00 00"
-                  class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                />
-              </div>
-            </div>
-
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700"> Пароль </label>
-
-                <input
-                  v-model="form.password"
-                  type="password"
-                  placeholder="Минимум 8 символов"
-                  class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                />
-              </div>
-
-              <div>
-                <label class="mb-1.5 block text-sm font-medium text-slate-700">
-                  Повторите пароль
-                </label>
-
-                <input
-                  v-model="confirmPassword"
-                  type="password"
-                  placeholder="Повторите пароль"
-                  class="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                />
-              </div>
+              <UiFormInput
+                v-model="form.confirmPassword"
+                :error="errors.confirmPassword"
+                :disabled="isLoading"
+                type="password"
+                label="Повторите пароль"
+                placeholder="Повторите пароль"
+              />
             </div>
 
             <div class="rounded-3xl bg-slate-50 p-4">
@@ -249,13 +195,9 @@ async function handleRegister() {
               </p>
             </div>
 
-            <button
-              type="submit"
-              :disabled="isLoading"
-              class="h-12 w-full rounded-2xl bg-slate-950 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {{ isLoading ? 'Создаём аккаунт...' : 'Создать аккаунт владельца' }}
-            </button>
+            <BaseButton type="submit" :full-width="true" :disabled="isLoading" :loading="isLoading">
+              Создать аккаунт владельца
+            </BaseButton>
           </form>
 
           <div class="mt-6 text-center">
