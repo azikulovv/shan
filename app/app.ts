@@ -1,14 +1,13 @@
 import { Bot } from "grammy";
 import { env } from "./common/config";
+import { startHandler } from "./handlers/start.handler";
 
 export const bot = new Bot(env.BOT_TOKEN);
 
-bot.command("start", (ctx) => {
-  ctx.reply("text");
-});
+startHandler();
 
 bot.start({
-  onStart: () => {
-    console.log("Bot is running");
+  onStart: (botInfo) => {
+    console.log(`[INFO] Бот запущен @${botInfo.username}`);
   },
 });
