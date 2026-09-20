@@ -1,3 +1,14 @@
+import { Bot } from "grammy";
 import { env } from "./common/config";
 
-console.log(env.BOT_TOKEN);
+export const bot = new Bot(env.BOT_TOKEN);
+
+bot.command("start", (ctx) => {
+  ctx.reply("text");
+});
+
+bot.start({
+  onStart: () => {
+    console.log("Bot is running");
+  },
+});
