@@ -1,6 +1,6 @@
+import { env } from "@app/config";
+import { startHandler } from "@app/handlers/start.handler";
 import { Bot } from "grammy";
-import { env } from "./common/config";
-import { startHandler } from "./handlers/start.handler";
 
 export const bot = new Bot(env.BOT_TOKEN);
 

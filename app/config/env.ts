@@ -1,5 +1,6 @@
 import "dotenv/config";
-import process from "node:process";
+// @ts-ignore
+import process from "process";
 import * as v from "valibot";
 
 type EnvData = v.InferOutput<typeof envSchema>;

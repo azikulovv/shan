@@ -1,4 +1,4 @@
-import { bot } from "../app";
+import { bot } from "@app/app";
 
 export function startHandler() {
   bot.command("start", async (ctx) => {
