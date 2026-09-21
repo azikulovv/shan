@@ -8,6 +8,9 @@
     "typecheck": "tsc --noEmit"
   },
   "author": "Azikulov Maulen",
+  "engines": {
+    "node": "v24.21.0"
+  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
