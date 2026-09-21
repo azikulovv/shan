@@ -44,6 +44,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm install --prod --frozen-lockfile
+
 COPY --from=builder /app/build ./build
 
 CMD ["node", "build/app.cjs"]
