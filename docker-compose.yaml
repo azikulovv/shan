@@ -1,7 +1,7 @@
 services:
-  telegram-bot:
+  shan-tg-bot:
     image: node:24-bookworm-slim
-    container_name: telegram-bot
+    container_name: shan-tg-bot
     build:
       context: ./telegram-bot
       dockerfile: Dockerfile
