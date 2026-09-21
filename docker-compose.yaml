@@ -3,8 +3,8 @@ services:
     image: node:24-bookworm-slim
     container_name: telegram-bot
     build:
-      context: .
+      context: ./telegram-bot
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - telegram-bot/.env
     restart: unless-stopped
