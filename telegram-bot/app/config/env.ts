@@ -1,5 +1,4 @@
 import "dotenv/config";
-// @ts-ignore
 import process from "process";
 import * as v from "valibot";
 

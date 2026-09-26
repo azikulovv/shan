@@ -1,6 +1,6 @@
 services:
   shan-tg-bot:
-    image: node:24-bookworm-slim
+    image: node:24-alpine
     container_name: shan-tg-bot
     build:
       context: ./telegram-bot

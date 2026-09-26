@@ -2,7 +2,7 @@
 # Dependencies
 # =========================
 
-FROM node:24-bookworm-slim AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN pnpm install --frozen-lockfile
 # Build
 # =========================
 
-FROM node:24-bookworm-slim AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -38,7 +38,7 @@ RUN pnpm build
 # Production
 # =========================
 
-FROM node:24-bookworm-slim AS production
+FROM node:24-alpine AS production
 
 WORKDIR /app
 
